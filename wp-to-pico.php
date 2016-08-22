@@ -69,11 +69,22 @@ class WP_To_Pico_Export {
 	 * Convert a posts meta data (both post_meta and the fields in wp_posts) to key value pairs for export
 	 */
 	function convert_meta( $post ) {
-		$categories = get_the_category( $post->ID );
+		$categories = strip_tags(get_the_term_list( $post->ID, 'category', '', ', ', '' ));
+		$tags = strip_tags(get_the_term_list( $post->ID, 'tag', '', ', ', '' ));
+		//$custom_taxonomy = strip_tags(get_the_term_list( $post->ID, 'THE NAME OF CUSTOM TAXONOMY', '', ', ', '' ));
 		$output = array(
 			 'title'		=> get_the_title( $post->ID ),
 			 'author'		=> get_userdata( $post->post_author )->display_name,
-			 'date'			=> get_the_time( 'Y/m/d', $post )
+			 'date'			=> get_the_time( 'Y/m/d', $post ),
+			 'categories'	=> $categories,
+			 'tags'			=> $tags,
+			 
+			 /* activate this line to import your custom taxonomy */
+			 //'customTax'		=> $custom_taxonomy,
+			 
+			  /* adding the excerpt as description */
+			 'description'	=> get_the_excerpt( $post->ID ), 
+			 'template'	    => 'post'
 		);
 	
 		return $output;
@@ -106,6 +117,12 @@ class WP_To_Pico_Export {
 			 $output .= 'Title: '. $meta['title'] ."\n";
 			 $output .= 'Author: '. $meta['author'] ."\n";
 			 $output .= 'Date: '. $meta['date'] ."\n";
+			 $output .= 'Categories: '. $meta['categories'] ."\n";
+			 $output .= 'Tags: '. $meta['tags'] ."\n";
+			 /* this is the last line to activate in order to import your custom taxonomy */
+			 //$output .= 'TAXONOMY NAME: '. $meta['customTax'] ."\n";
+			 $output .= 'Description: '. $meta['description'] ."\n";
+			 $output .= 'Template: '. $meta['template'] ."\n";
 			 $output .= "*/\n\n";
 	
 			 $output .= $this->convert_content( $post );
